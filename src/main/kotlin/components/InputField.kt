@@ -24,7 +24,6 @@ val InputField = fc<InputFieldProps> { props ->
         attrs {
             onSubmitFunction = { event ->
                 event.preventDefault()
-                console.log(props.repo)
                 props.onSubmitValues()
                 (document.getElementById("repoNameField") as HTMLInputElement).value = ""
                 (document.getElementById("branchNameField") as HTMLInputElement).value = ""

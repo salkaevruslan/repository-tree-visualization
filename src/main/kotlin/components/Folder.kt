@@ -31,7 +31,6 @@ val Folder = fc<FolderProps> { props ->
         topWords += "${props.info.topWordsList[i].first}(${props.info.topWordsList[i].second})"
     }
     val beginningLines = "----|".repeat(max(0, props.info.depth - 1))
-    console.log(document.getElementsByName("sendButton"))
     if (props.info.isRoot || !showFolder(props.info, props.focusedFolderInfoList, props.root)) {
         p {}
     } else {

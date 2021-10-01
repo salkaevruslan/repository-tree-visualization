@@ -18,5 +18,5 @@
 
    For example you can use this repository (salkaevruslan/repository-tree-visualization) and branch (main)
 2. Wait while data is loading (may take a few seconds)
-3. To expand/close folder, click on it's name
+3. To expand/collapse folder, click on it's name
 ![img_2.png](img_2.png)
