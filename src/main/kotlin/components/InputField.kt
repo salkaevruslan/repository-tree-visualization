@@ -1,7 +1,8 @@
 package components
 
-import kotlinx.browser.window
+import kotlinx.browser.document
 import kotlinx.html.InputType
+import kotlinx.html.id
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onSubmitFunction
 import org.w3c.dom.HTMLInputElement
@@ -11,9 +12,11 @@ import react.dom.form
 import react.dom.input
 
 external interface InputFieldProps : Props {
-    var value: String
-    var onUpdateValue: (String) -> Unit
-    var onSubmitValue: () -> Unit
+    var repo: String
+    var branch: String
+    var onUpdateRepo: (String) -> Unit
+    var onUpdateBranch: (String) -> Unit
+    var onSubmitValues: () -> Unit
 }
 
 val InputField = fc<InputFieldProps> { props ->
@@ -21,22 +24,35 @@ val InputField = fc<InputFieldProps> { props ->
         attrs {
             onSubmitFunction = { event ->
                 event.preventDefault()
-                props.onSubmitValue()
-            }
-            onChangeFunction = { event ->
-                event.preventDefault()
-                props.onUpdateValue((event.target as HTMLInputElement).value)
+                console.log(props.repo)
+                props.onSubmitValues()
+                (document.getElementById("repoNameField") as HTMLInputElement).value = ""
+                (document.getElementById("branchNameField") as HTMLInputElement).value = ""
             }
         }
         input(type = InputType.text, name = "Reponame") {
-            key = "repoNameField"
             attrs {
+                id = "repoNameField"
                 placeholder = "Enter Repo Name"
+                onChangeFunction = { event ->
+                    event.preventDefault()
+                    props.onUpdateRepo((event.target as HTMLInputElement).value)
+                }
+            }
+        }
+        input(type = InputType.text, name = "BranchName") {
+            attrs {
+                id = "branchNameField"
+                placeholder = "Enter Branch Name"
+                onChangeFunction = { event ->
+                    event.preventDefault()
+                    props.onUpdateBranch((event.target as HTMLInputElement).value)
+                }
             }
         }
         input(type = InputType.submit, name = "Submit") {
-            key = "sendButton"
             attrs {
+                id = "sendButton"
                 placeholder = "Submit"
             }
         }

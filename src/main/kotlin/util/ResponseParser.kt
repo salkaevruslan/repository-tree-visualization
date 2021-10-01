@@ -3,13 +3,15 @@ package util
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 
-suspend fun getGitHubTree(path: String): FolderInfo {
-    val result = window.fetch("https://api.github.com/repos/${path}/git/trees/main?recursive=1").await().text().await()
-    console.log(result)
-    return buildFileTree(path, result)
+suspend fun getGitHubTree(path: String, branch: String): Pair<FolderInfo?, Boolean> {
+    val result =
+        window.fetch("https://api.github.com/repos/${path}/git/trees/${branch}?recursive=1").await().text().await()
+    console.log("result got")
+    if (exceptionHappened(result)) return Pair(null, false)
+    return Pair(buildFileTree(path, branch, result), true)
 }
 
-suspend fun buildFileTree(repository: String, result: String): FolderInfo {
+suspend fun buildFileTree(repository: String, branch: String, result: String): FolderInfo {
     val files = getFiles(result)
     val globalRoot = FolderInfo(
         path = "",
@@ -33,7 +35,9 @@ suspend fun buildFileTree(repository: String, result: String): FolderInfo {
         root.children.add(info)
         root = info
     }
-    countWords(repository, globalRoot)
+    console.log("tree build")
+    countWords(repository, branch, globalRoot)
+    console.log("words count")
     return globalRoot
 }
 
@@ -42,18 +46,23 @@ fun getFiles(result: String): List<String> {
         .map { line -> line.trim().replace("\"path\": ", "").replace("\"", "").replace(",", "") }.toList()
 }
 
-suspend fun countWords(repository: String, root: FolderInfo) {
+fun exceptionHappened(result: String): Boolean {
+    return result.split("\n").map { it.trim() }.contains("\"message\": \"Not Found\",")
+}
+
+suspend fun countWords(repository: String, branch: String, root: FolderInfo) {
     if (root.children.isEmpty() && !root.isRoot) {
         val result =
-            window.fetch("https://raw.githubusercontent.com/${repository}/master/${root.path}").await().text().await()
+            window.fetch("https://raw.githubusercontent.com/${repository}/${branch}/${root.path}").await().text()
+                .await()
         countWordsInFile(result, root)
     } else {
         val wordsCount = mutableMapOf<String, Int>()
         for (child in root.children) {
-            countWords(repository, child)
+            countWords(repository, branch, child)
             for (entry in child.topWordsList) {
                 val currentCount = wordsCount[entry.first]
-                wordsCount[entry.first] = if (currentCount != null) currentCount + entry.second else entry.second
+                wordsCount[entry.first] = if (currentCount != undefined) currentCount + entry.second else entry.second
             }
         }
         getTopWords(wordsCount, root)
@@ -66,11 +75,11 @@ fun countWordsInFile(result: String, root: FolderInfo) {
     for (word in words) {
         if (word.isEmpty()) continue
         val currentCount = wordsCount[word]
-        wordsCount[word] = if (currentCount != null) currentCount + 1 else 1
+        wordsCount[word] = if (currentCount != undefined) currentCount + 1 else 1
     }
     getTopWords(wordsCount, root)
 }
 
 fun getTopWords(wordsCount: Map<String, Int>, root: FolderInfo) {
-    root.topWordsList = wordsCount.toList().sortedBy { (_, value) -> value }.toList()
+    root.topWordsList = wordsCount.toList().sortedByDescending { (_, value) -> value }.toList()
 }

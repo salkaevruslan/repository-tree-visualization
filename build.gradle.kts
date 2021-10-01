@@ -32,7 +32,7 @@ dependencies {
 
     implementation(kotlinw("react"))
     implementation(kotlinw("react-dom"))
-
+    implementation(kotlinw("css"))
     implementation(kotlinw("styled"))
 
     implementation(kotlinw("ring-ui"))

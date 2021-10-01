@@ -16,3 +16,13 @@ fun getInfoList(root: FolderInfo): List<FolderInfo> {
     }
     return list
 }
+
+fun showFolder(info: FolderInfo, focusedInfo: FolderInfo, root: FolderInfo): Boolean {
+    val parents = mutableListOf<FolderInfo>()
+    var currentInfo: FolderInfo? = focusedInfo
+    while (currentInfo != null) {
+        parents.add(currentInfo)
+        currentInfo = currentInfo.parent
+    }
+    return parents.contains(info.parent) || info.parent == root
+}

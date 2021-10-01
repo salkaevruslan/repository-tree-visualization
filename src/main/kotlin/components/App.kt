@@ -12,8 +12,10 @@ import util.getInfoList
 
 external interface AppState : State {
     var currentRepo: String
-    var isRunMade: Int
+    var currentBranch: String
+    var runStatus: Int
     var root: FolderInfo
+    var focusedFolderInfo: FolderInfo
 }
 
 @JsExport
@@ -27,42 +29,55 @@ class App : RComponent<Props, AppState>() {
                 +"Enter repo path"
             }
             inputField {
-                value = ""
-                onUpdateValue = { value ->
-                    console.log("keks")
-                    this.value = value
-                    console.log("Repo name updated: ${this.value}")
+                repo = ""
+                onUpdateRepo = { value ->
+                    this.repo = value
+                    console.log("Repo name updated: ${this.repo}")
                 }
-                onSubmitValue = {
+                onUpdateBranch = { value ->
+                    this.branch = value
+                    console.log("Branch name updated: ${this.branch}")
+                }
+                onSubmitValues = {
                     setState {
-                        currentRepo = value
-                        isRunMade = 2
-                        GlobalScope.launch(Dispatchers.Default) {
-                            root = getGitHubTree(currentRepo)
-                            isRunMade = 1
+                        currentRepo = repo
+                        currentBranch = branch
+                        runStatus = 2
+                    }
+                    GlobalScope.launch(Dispatchers.Default) {
+                        val result = getGitHubTree(state.currentRepo, state.currentBranch)
+                        setState {
+                            if (result.second) {
+                                root = result.first!!
+                                runStatus = 1
+                            } else {
+                                runStatus = 0
+                            }
+                            focusedFolderInfo = root
                         }
                     }
-                    console.log("Repo name submitted: $value")
+                    console.log("Repo name submitted: $repo")
                 }
             }
             repository {
                 path = state.currentRepo
-                onSetRunStatus = { status ->
-                    setState {
-                        isRunMade = status
-                    }
-                }
-                onSetRoot = { info ->
-                    setState {
-                        root = info
+                isRunMade = state.runStatus
+            }
+            if (state.runStatus == 1) {
+                for (folderInfo in getInfoList(state.root)) {
+                    folder {
+                        root = state.root
+                        info = folderInfo
+                        isRunMade = state.runStatus
+                        currentFocusedFolderInfo = state.focusedFolderInfo
+                        updateFocusedFolderInfo = { info ->
+                            setState {
+                                focusedFolderInfo = info
+                            }
+                        }
                     }
                 }
             }
-            // for (folderInfo in getInfoList(state.root)) {
-            //   folder {
-            //        info = folderInfo
-            //    }
-            // }
         }
     }
 }
