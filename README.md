@@ -9,7 +9,7 @@
 ### IntelliJ Idea:
 1. Open project with IntelliJ Idea 
 2. Invoke ```browserDevelopmentRun``` (can be found in gradle side panel)
-![img_1.png](img_1.png)
+![img1.png](img/img_1.png)
 3. Application will run on localhost and window will open in your browser
 
 
@@ -19,4 +19,4 @@
    For example you can use this repository (salkaevruslan/repository-tree-visualization) and branch (main)
 2. Wait while data is loading (may take a few seconds)
 3. To expand/collapse folder, click on it's name
-![img_2.png](img_2.png)
+![img_2.png](img/img_2.png)
