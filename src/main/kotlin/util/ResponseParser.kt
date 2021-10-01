@@ -6,7 +6,7 @@ import kotlinx.coroutines.await
 suspend fun getGitHubTree(path: String, branch: String): Pair<FolderInfo?, Boolean> {
     val result =
         window.fetch("https://api.github.com/repos/${path}/git/trees/${branch}?recursive=1").await().text().await()
-    console.log("result got")
+    console.log("Result from GitHub received")
     if (exceptionHappened(result)) return Pair(null, false)
     return Pair(buildFileTree(path, branch, result), true)
 }
@@ -35,9 +35,9 @@ suspend fun buildFileTree(repository: String, branch: String, result: String): F
         root.children.add(info)
         root = info
     }
-    console.log("tree build")
+    console.log("Tree build done")
     countWords(repository, branch, globalRoot)
-    console.log("words count")
+    console.log("Words count done")
     return globalRoot
 }
 

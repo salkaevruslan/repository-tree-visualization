@@ -17,12 +17,17 @@ fun getInfoList(root: FolderInfo): List<FolderInfo> {
     return list
 }
 
-fun showFolder(info: FolderInfo, focusedInfo: FolderInfo, root: FolderInfo): Boolean {
-    val parents = mutableListOf<FolderInfo>()
-    var currentInfo: FolderInfo? = focusedInfo
-    while (currentInfo != null) {
-        parents.add(currentInfo)
-        currentInfo = currentInfo.parent
+fun showFolder(info: FolderInfo, focusedInfoSet: List<FolderInfo>, root: FolderInfo): Boolean {
+    return focusedInfoSet.contains(info.parent) || info.parent == root
+}
+
+fun isParent(info: FolderInfo, parent: FolderInfo): Boolean {
+    var tmp: FolderInfo? = info
+    while (tmp != null) {
+        if (parent == tmp) {
+            return true
+        }
+        tmp = tmp.parent
     }
-    return parents.contains(info.parent) || info.parent == root
+    return false
 }

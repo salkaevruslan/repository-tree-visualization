@@ -14,7 +14,7 @@ external interface FolderProps : Props {
     var root: FolderInfo
     var info: FolderInfo
     var isRunMade: Int
-    var currentFocusedFolderInfo: FolderInfo
+    var focusedFolderInfoList: MutableList<FolderInfo>
     var updateFocusedFolderInfo: (FolderInfo) -> Unit
 }
 
@@ -30,9 +30,9 @@ val Folder = fc<FolderProps> { props ->
         }
         topWords += "${props.info.topWordsList[i].first}(${props.info.topWordsList[i].second})"
     }
-    val beginningLines = "----|".repeat(max(0, props.info.depth-1))
+    val beginningLines = "----|".repeat(max(0, props.info.depth - 1))
     console.log(document.getElementsByName("sendButton"))
-    if (props.info.isRoot || !showFolder(props.info, props.currentFocusedFolderInfo, props.root)) {
+    if (props.info.isRoot || !showFolder(props.info, props.focusedFolderInfoList, props.root)) {
         p {}
     } else {
         when (props.isRunMade) {
@@ -41,13 +41,7 @@ val Folder = fc<FolderProps> { props ->
                 +"$beginningLines${props.info.path} ($topWords)"
                 attrs {
                     onClickFunction = {
-                        if (props.info != props.currentFocusedFolderInfo) {
-                            props.updateFocusedFolderInfo(props.info)
-                        } else {
-                            if (props.info.parent != null) {
-                                props.updateFocusedFolderInfo(props.info.parent!!)
-                            }
-                        }
+                        props.updateFocusedFolderInfo(props.info)
                     }
                 }
             }

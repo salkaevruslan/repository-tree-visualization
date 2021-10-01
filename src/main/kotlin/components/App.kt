@@ -9,13 +9,14 @@ import react.dom.*
 import util.FolderInfo
 import util.getGitHubTree
 import util.getInfoList
+import util.isParent
 
 external interface AppState : State {
     var currentRepo: String
     var currentBranch: String
     var runStatus: Int
     var root: FolderInfo
-    var focusedFolderInfo: FolderInfo
+    var focusedFolderInfoList: MutableList<FolderInfo>
 }
 
 @JsExport
@@ -46,6 +47,7 @@ class App : RComponent<Props, AppState>() {
                     }
                     GlobalScope.launch(Dispatchers.Default) {
                         val result = getGitHubTree(state.currentRepo, state.currentBranch)
+                        console.log("Now updating")
                         setState {
                             if (result.second) {
                                 root = result.first!!
@@ -53,7 +55,7 @@ class App : RComponent<Props, AppState>() {
                             } else {
                                 runStatus = 0
                             }
-                            focusedFolderInfo = root
+                            focusedFolderInfoList = mutableListOf(root)
                         }
                     }
                     console.log("Repo name submitted: $repo")
@@ -69,10 +71,21 @@ class App : RComponent<Props, AppState>() {
                         root = state.root
                         info = folderInfo
                         isRunMade = state.runStatus
-                        currentFocusedFolderInfo = state.focusedFolderInfo
+                        focusedFolderInfoList = state.focusedFolderInfoList
                         updateFocusedFolderInfo = { info ->
                             setState {
-                                focusedFolderInfo = info
+                                if (focusedFolderInfoList.contains(info)) {
+                                    focusedFolderInfoList.remove(info)
+                                    val tmp = mutableListOf<FolderInfo>()
+                                    for (element in focusedFolderInfoList) {
+                                        if (isParent(element, info)) {
+                                            tmp.add(element)
+                                        }
+                                    }
+                                    focusedFolderInfoList.removeAll(tmp)
+                                } else {
+                                    focusedFolderInfoList.add(info)
+                                }
                             }
                         }
                     }
